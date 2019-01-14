@@ -23,4 +23,4 @@ generate_key() {
 
 generate_key ~/.ssh/id_rsa
 generate_key ~/.ssh/id_rsa_github
-link ~/.ssh/config $(realpath ${THISDIR}/config)
+link ~/.ssh/config ${THISDIR}/config

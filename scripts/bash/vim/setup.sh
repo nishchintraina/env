@@ -2,7 +2,7 @@
 THISDIR=$(dirname "$0")
 source ${THISDIR}/../utils/common.shlib
 
-cp ${THISDIR}/.vimrc ~
+link ~/.vimrc ${THISDIR}/.vimrc
 
 mkdir -p ~/.vim/bundle
 mkdir -p ~/.vim/autoload
