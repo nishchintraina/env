@@ -10,12 +10,12 @@ filetype off
 execute pathogen#infect()
 
 " vim-airline stuff
-" Appearance 
+" Appearance
   let g:airline_powerline_fonts = 1
   let g:airline_theme='papercolor'
 " Enableirline_theme='simple' and customize tabline
   let g:airline#extensions#tabline#enabled = 1
-" Configs for shell prompt generator  
+" Configs for shell prompt generator
   let g:promptline_preset = 'full'
   let g:promptline_theme = 'airline'
 
@@ -103,6 +103,7 @@ set listchars=tab:▸\ ,eol:¬
 " Or use your leader key + l to toggle on/off
 map <leader>l :set list!<CR> " Toggle tabs and EOL
 
+
 " Color scheme (terminal)
 set t_Co=256
 set background=dark
@@ -111,4 +112,8 @@ let g:solarized_termtrans=1
 " put https://raw.github.com/altercation/vim-colors-solarized/master/colors/solarized.vim
 " in ~/.vim/colors/ and uncomment:
 " colorscheme solarized
-colorscheme darkblue 
+colorscheme darkblue
+
+" Bindings
+" Remove Trailing spaces
+nnoremap <F7> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
