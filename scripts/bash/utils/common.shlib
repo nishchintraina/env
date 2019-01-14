@@ -1,1 +1,18 @@
 #!/bin/bash
+
+link() {
+  local l=$1
+  local f=$2
+
+  echo "Checking for link: ${l} -> ${f}"
+  if [ -L "${l}" ]; then
+    echo "Link already exists. Skipping."
+  else
+    if [ -e $"${l}" ]; then
+      echo "Not a link: ${l}. Backing up at: ${l}.old"
+      mv ${l} ${l}.old
+    fi
+    echo "Creating link: ${l}"
+    ln -s ${f} ${l}
+  fi
+}
