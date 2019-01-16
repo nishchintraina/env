@@ -1,119 +1,133 @@
-" Don't try to be vi compatible
-set nocompatible
+"
+" @file .vimrc
+"
+" @brief
+" RC file to set up vim
+"
+" @changelog
+" 2015/08/20 - Original version
+"
+" @author nisraina
+" @date 2015/08/20
+"
+"
 
-" Helps force plugins to load correctly when it is turned back on below
-filetype off
+" basic settings
+set laststatus=2						" Always show the statusline
+set tabstop=4							" Default tabstop
+set shiftwidth=4						" Default shiftwidth
+set backspace=indent,eol,start 			" Allow backspace key to be used in insert mode
+set hlsearch 							" Highlight all matches for previous searcg pattern
+set number 								" Print the line number in front of each line
+set autoindent 							" Copy indent from current line when starting a new line
+set viminfo='1000,<3000,s100,h 			" Read/Write viminfo file on startup/exit. Do ":help 'viminfo'" for info on the identifying chars
+set cst 								" Use cscope for tag commands
+set csto=0 								" Cscope database(s) are searched first, followed by tag file(s)
+set nocsverb 							" Disable verbosity in cscope
+set wildmenu 							" Auto completetion of vim menu commands on pressing the wildchar (default <Tab>)
+set nocompatible   						" Disable vi-compatibility
+set encoding=utf-8 						" Necessary to show Unicode glyphs
+set nocompatible   						" Disable vi-compatibility
+set nofoldenable    					" Disable folding
 
-" TODO: Load plugins here (pathogen or vundle)
 
-" Enable pathogen
+" add any database in current directory
+if filereadable("cscope.out")
+	cs add cscope.out
+" else add database pointed to by environment
+elseif $CSCOPE_DB != ""
+	cs add $CSCOPE_DB
+endif
+set csverb
+
+
+" diff settings
+if version >= 600
+	if (&foldmethod == 'diff')
+		set diffopt=filler,context:1000
+		set number
+		:set wrap
+	endif
+endif
+
+
+" screen title
+if &term == "xterm-256color"
+ let &titlestring = expand("%:t")
+ set t_ts=k
+ set t_fs=\
+ set title
+endif
+autocmd TabEnter,WinEnter,BufReadPost,FileReadPost,BufNewFile * let &titlestring = expand("%:t")
+let &titleold=substitute(getcwd(), $HOME, "~", "")
+
+" Set up pathogen
 execute pathogen#infect()
-
-" vim-airline stuff
-" Appearance
-  let g:airline_powerline_fonts = 1
-  let g:airline_theme='papercolor'
-" Enableirline_theme='simple' and customize tabline
-  let g:airline#extensions#tabline#enabled = 1
-" Configs for shell prompt generator
-  let g:promptline_preset = 'full'
-  let g:promptline_theme = 'airline'
-
-" Turn on syntax highlighting
+execute pathogen#helptags()
 syntax on
-
-" For plugins to load correctly
 filetype plugin indent on
 
-" TODO: Pick a leader key
-" let mapleader = ","
+" vim-airline configs
+let g:airline_theme='luna'
+let g:Powerline_symbols = 'fancy'
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_powerline_fonts = 1
+let g:airline_theme='papercolor'
 
-" Security
-set modelines=0
+" Toggle between relativenumber and number
+function NumberToggle()
+  if(&relativenumber == 1)
+    set norelativenumber
+    set number
+  else
+    set relativenumber
+  endif
+endfunc
 
-" Show line numbers
+" Return to last edit position when opening files (You want this!)
+autocmd BufReadPost *
+     \ if line("'\"") > 0 && line("'\"") <= line("$") |
+     \   exe "normal! g`\"" |
+     \ endif
+
+if &diff
+    colorscheme edge
+else
+	colorscheme delek
+endif
+
+" Enable line number and make the active line's number a different color
 set number
+set cursorline
+hi CursorLine term=bold cterm=bold guibg=Grey40
 
-" Show file stats
-set ruler
+"" All mappings
 
-" Blink cursor on error instead of beeping (grr)
-set visualbell
+" add cscope mappings
+nnoremap <C-\> :cs find 3 <C-R>=expand("<cword>")<CR><CR>
+nnoremap <C-@> :cs find 0 <C-R>=expand("<cword>")<CR><CR>
 
-" Encoding
-set encoding=utf-8
+" Toggle absolute and relative line numbering
+nnoremap <unique> tn :call NumberToggle()<CR>
 
-" Whitespace
-set wrap
-set textwidth=79
-set formatoptions=tcqrn1
-set tabstop=2
-set shiftwidth=2
-set softtabstop=2
-set expandtab
-set noshiftround
+" Powerline Mappings
+nnoremap <C-n> :bn<CR>
+nnoremap <C-b> :bp<CR>
 
-" Cursor motion
-set scrolloff=3
-set backspace=indent,eol,start
-set matchpairs+=<:> " use % to jump between pairs
-runtime! macros/matchit.vim
+" NERDTree Mappings
+nnoremap <F5> :NERDTreeToggle<CR>
 
-" Move up/down editor lines
-nnoremap j gj
-nnoremap k gk
+" Tagbar Mappings
+nnoremap <F6> :TagbarToggle<CR>
 
-" Allow hidden buffers
-set hidden
+" to delete trailing spaces
+nnoremap <F7> :%s/\s\+$//<CR>
 
-" Rendering
-set ttyfast
+" colorsheme color changes
+nnoremap <F8> :colorscheme edge<CR>
+nnoremap <F9> :colorscheme delek<CR>
 
-" Status bar
-set laststatus=2
-
-" Last line
-set showmode
-set showcmd
-
-" Searching
-nnoremap / /\v
-vnoremap / /\v
-set hlsearch
-set incsearch
-set ignorecase
-set smartcase
-set showmatch
-map <leader><space> :let @/=''<cr> " clear search
-
-" Remap help key.
-inoremap <F1> <ESC>:set invfullscreen<CR>a
-nnoremap <F1> :set invfullscreen<CR>
-vnoremap <F1> :set invfullscreen<CR>
-
-" Textmate holdouts
-
-" Formatting
-map <leader>q gqip
-
-" Visualize tabs and newlines
-set listchars=tab:▸\ ,eol:¬
-" Uncomment this to enable by default:
-" set list " To enable by default
-" Or use your leader key + l to toggle on/off
-map <leader>l :set list!<CR> " Toggle tabs and EOL
-
-
-" Color scheme (terminal)
-set t_Co=256
-set background=dark
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
-" put https://raw.github.com/altercation/vim-colors-solarized/master/colors/solarized.vim
-" in ~/.vim/colors/ and uncomment:
-" colorscheme solarized
-colorscheme darkblue
-
-" Bindings
-" Remove Trailing spaces
-nnoremap <F7> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+" cscope rebuild
+nnoremap <F10> :silent :!find . -iname '*.c' -o -iname '*.cpp' -o -iname '*.h' -o -iname '*.hpp' > cscope.files<CR><CR>
+	\:!cscope -b -i cscope.files -f cscope.out<CR><CR>
+	\:silent :cs reset<CR><CR>
