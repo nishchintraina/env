@@ -1,28 +1,53 @@
-# skip the startup message
-startup_message off
+#
+# @file .screenrc
+#
+# @brief
+# RC file to set up GNU screen
+#
+# @changelog
+# 2015/08/20 - Original version
+#
+# @author nisraina
+# @date 2015/08/20
+#
+#
 
-# go to home dir
-chdir
+# Turn that annoying visual bell off
+vbell off
 
-# Automatically detach on hangup.
+# need more scroll
+defscrollback 100000
+
+# prvent overwrites to screen buffer
+altscreen on
+
+# disable the damn suspend key
+bind s
+
+# emulate .logout message
+pow_detach_msg "Screen session of \$LOGNAME \$:cr:\$:nl:ended."
+
+# hardstatus (tabbed)
+hardstatus alwayslastline "%{=b bw}%-w%{=b rw}| [%n] %t |%{-}%+w %-="
+
+# caption
+caption always "%?%F%{=b rw}%:%{= bw}%?[$USER @ %H] - %t %-049=%-023= %D %d %M %Y, %c %{= .b}%{-}%{=dd}"
+
+# detach on hangup
 autodetach on
 
-# Change default scrollback value for new windows
-defscrollback 10000
+# don't display the copyright page
+startup_message off
 
-# start with visual bell as default
-vbell on
-vbell_msg "bell on %t (%n)"
+# Make sure that we dont block when Ctrl+s is typed
+nonblock on
 
-# look and feel
-caption always "%{= bb}%{+b w}%n %t %h %=%l %H %c"
-hardstatus alwayslastline "%-Lw%{= BW}%50>%n%f* %t%{-}%+Lw%<"
+# disable screen's internal scrollback buffer to avoid eating up line while typing at the bottom edge of terminal
+termcapinfo xterm* ti@:te@
 
-activity "Activity in %t(%n)"
-
-shelltitle "shell"
-shell -$SHELL
-
-term "screen-256color"
-
-altscreen
+# Ensure utf-8 encoding is supported
+defc1 off
+defutf8 on
+utf8 on
+defencoding utf-8
+encoding utf-8 utf-8
