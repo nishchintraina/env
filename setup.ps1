@@ -1,32 +1,31 @@
-# Windows entry point — mirrors setup.sh for PowerShell
-# Usage: .\setup.ps1
-# Run from the cloned env repo root.
+# Windows entry point — run once after cloning env to C:\Users\nish\.env
+# Usage: C:\Users\nish\.env\setup.ps1
 
 $reposDir = "C:\Users\nish\repos"
-$repos = @(
-    @{ name = "homelab";       url = "https://github.com/nishchintraina/homelab.git";       branch = "develop" },
-    @{ name = "claude-config"; url = "https://github.com/nishchintraina/claude-config.git"; branch = "develop" }
-)
+$claudeDir = "C:\Users\nish\.claude"
+$token = (Get-Content "$claudeDir\..\secrets.json" -ErrorAction SilentlyContinue | ConvertFrom-Json).GITHUB_PERSONAL_ACCESS_TOKEN
 
-New-Item -ItemType Directory -Force $reposDir | Out-Null
-
-foreach ($repo in $repos) {
-    $path = Join-Path $reposDir $repo.name
+function Clone-Or-Pull($url, $path, $branch = "develop") {
     if (Test-Path "$path\.git") {
-        Write-Host "Pulling $($repo.name)..." -ForegroundColor Cyan
+        Write-Host "Pulling $(Split-Path $path -Leaf)..." -ForegroundColor Cyan
         git -C $path pull
     } else {
-        Write-Host "Cloning $($repo.name)..." -ForegroundColor Cyan
-        git clone -b $repo.branch $repo.url $path
-    }
-
-    $setup = Join-Path $path "setup.ps1"
-    if (Test-Path $setup) {
-        Write-Host "Running setup for $($repo.name)..." -ForegroundColor Yellow
-        & $setup
+        Write-Host "Cloning $(Split-Path $path -Leaf)..." -ForegroundColor Cyan
+        $authUrl = $url -replace "https://", "https://nishchintraina:$token@"
+        git clone -b $branch $authUrl $path
     }
 }
 
+# homelab -> C:\Users\nish\repos\homelab
+Clone-Or-Pull "https://github.com/nishchintraina/homelab.git" "$reposDir\homelab"
+
+# claude-config -> C:\Users\nish\.claude (IS the repo)
+Clone-Or-Pull "https://github.com/nishchintraina/claude-config.git" $claudeDir
+
+# Register scheduled tasks (needs admin - prompt separately)
 Write-Host ""
-Write-Host "Windows repos ready. To install systemd timers, run in WSL:" -ForegroundColor Green
-Write-Host "  bash /mnt/c/Users/nish/repos/homelab/desktop/systemd/install.sh" -ForegroundColor Gray
+Write-Host "To register scheduled tasks, run as admin:" -ForegroundColor Yellow
+Write-Host "  $reposDir\homelab\desktop\setup-scheduled-tasks.ps1"
+
+Write-Host ""
+Write-Host "Done. Restart Claude Code." -ForegroundColor Green
